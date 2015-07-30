@@ -77,11 +77,8 @@
 		A8908FFA1B28F8C5005BBC3C /* Calculator */ = {
 			isa = PBXGroup;
 			children = (
-				A8908FFD1B28F8C5005BBC3C /* AppDelegate.swift */,
 				A8908FFF1B28F8C5005BBC3C /* ViewController.swift */,
 				A89090011B28F8C5005BBC3C /* Main.storyboard */,
-				A89090041B28F8C5005BBC3C /* Images.xcassets */,
-				A89090061B28F8C5005BBC3C /* LaunchScreen.xib */,
 				A8908FFB1B28F8C5005BBC3C /* Supporting Files */,
 			);
 			path = Calculator;
@@ -90,6 +87,9 @@
 		A8908FFB1B28F8C5005BBC3C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				A89090061B28F8C5005BBC3C /* LaunchScreen.xib */,
+				A89090041B28F8C5005BBC3C /* Images.xcassets */,
+				A8908FFD1B28F8C5005BBC3C /* AppDelegate.swift */,
 				A8908FFC1B28F8C5005BBC3C /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -156,7 +156,9 @@
 		A8908FF01B28F8C5005BBC3C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Emil Culic";
 				TargetAttributes = {
 					A8908FF71B28F8C5005BBC3C = {
@@ -276,6 +278,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -344,6 +347,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "learn.ios.emil.culic.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -354,6 +358,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Calculator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "learn.ios.emil.culic.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -372,6 +377,7 @@
 				);
 				INFOPLIST_FILE = CalculatorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "learn.ios.emil.culic.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Calculator.app/Calculator";
 			};
@@ -387,6 +393,7 @@
 				);
 				INFOPLIST_FILE = CalculatorTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "learn.ios.emil.culic.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Calculator.app/Calculator";
 			};
@@ -411,6 +418,7 @@
 				A89090191B28F8C5005BBC3C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A890901A1B28F8C5005BBC3C /* Build configuration list for PBXNativeTarget "CalculatorTests" */ = {
 			isa = XCConfigurationList;
@@ -419,6 +427,7 @@
 				A890901C1B28F8C5005BBC3C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
