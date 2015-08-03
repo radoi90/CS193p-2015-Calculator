@@ -10,141 +10,145 @@ import UIKit
 
 class ViewController: UIViewController
 {
-    @IBOutlet weak var historyDisplay: UILabel!
+    @IBOutlet weak var descriptionDisplay: UILabel!
+    
     @IBOutlet weak var display: UILabel!
     
     var userIsInTheMiddleOfTypingANumber = false
+    
+    var brain = CalculatorBrain()
+    
+    let defaultDisplayText = "0"
+    let defaultDescriptionText = ""
 
-    @IBAction func appendDigit(sender: UIButton) {
-        let value = sender.currentTitle!
+    @IBAction func appendCharacter(sender: UIButton) {
+        let character = sender.currentTitle!
         
-        if userIsInTheMiddleOfTypingANumber {
-            // Add if value is a digit, or the decimal dot is being input the first time
-            if (value != ".") || (display.text!.rangeOfString(".") == nil) {
-                display.text = display.text! + value
+        switch character {
+        case ".":
+            appendDecimalPoint()
+        case let digit where (0...9).map { "\($0)" }.contains(digit):
+            appendDigit(digit)
+        case "ᐩ/-":
+            if userIsInTheMiddleOfTypingANumber {
+                toggleNegativeSign()
+            } else {
+                operate(sender)
             }
-        } else {
-            display.text = value == "." ? "0." : value
+        default: break
         }
-        
-        userIsInTheMiddleOfTypingANumber = true
     }
 
     @IBAction func backspace() {
-        // Only affect numbers manually inputted
-        guard userIsInTheMiddleOfTypingANumber else {
-            return
-        }
-        
-        guard let currentText = display.text else {
-            return
-        }
-        
-        switch currentText.characters.count {
-        case 1:
-            userIsInTheMiddleOfTypingANumber = false
-            display.text = "0"
-        case let length where length > 1:
-            display.text = currentText.substringToIndex(currentText.endIndex.predecessor())
-        default: return
-        }
-    }
-    
-    @IBAction func invertSign(sender: UIButton) {
         if userIsInTheMiddleOfTypingANumber {
-            if display.text!.rangeOfString("-") == nil {
-                display.text = "-" + display.text!
+            if display.text!.characters.count > 1 {
+                display.text = String(dropLast(display.text!.characters))
             } else {
-                display.text = display.text!.substringFromIndex(display.text!.startIndex.successor())
+                displayValue = nil
             }
         } else {
-            operate(sender)
+            displayValue = brain.undoLast()
         }
     }
     
     @IBAction func operate(sender: UIButton) {
-        let operation = sender.currentTitle!
+        enter()
         
-        if userIsInTheMiddleOfTypingANumber {
-            enter()
-        }
-        
-        switch operation {
-        case "×": performOperation(*)
-        case "÷": performOperation { $1 / $0 }
-        case "+": performOperation { $0 + $1 }
-        case "−": performOperation { $1 - $0 }
-        case "√": performOperation(sqrt)
-        case "sin": performOperation(sin)
-        case "cos": performOperation(cos)
-        case "π": inputOperand(M_PI)
-        case "ᐩ/-": performOperation { -$0 }
-        default: break
-        }
-        
-        if let _ = displayValue {
-            historyDisplay.text = historyDisplay.text! + " \(operation)"
-            enter()
+        if let operation = sender.currentTitle {
+            displayValue = brain.performOperation(operation)
         }
     }
-    
-    func performOperation(operation: (Double, Double) -> Double) {
-        if operandStack.count >= 2 {
-            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-        } else {
-            displayValue = nil
-        }
-    }
-    
-    private func performOperation(operation: Double -> Double) {
-        if operandStack.count >= 1 {
-            displayValue = operation(operandStack.removeLast())
-        } else {
-            displayValue = nil
-        }
-    }
-    
-    func inputOperand(operand: Double) {
-        displayValue = operand
-    }
-
-    var operandStack = Array<Double>()
     
     @IBAction func enter() {
-        if let currentValue = displayValue {
-            operandStack.append(currentValue)
-            historyDisplay.text = historyDisplay.text! + " \(currentValue)"
-            print("operandStack = \(operandStack)")
-        }
-        
         if userIsInTheMiddleOfTypingANumber {
+            if let currentValue = displayValue {
+                brain.pushOperand(currentValue)
+            }
+            
             displayValue = nil
-            userIsInTheMiddleOfTypingANumber = false
         }
     }
     
     var displayValue: Double? {
         get {
-            if let parsedNumber = NSNumberFormatter().numberFromString(display.text!) {
+            let formater = NSNumberFormatter()
+            if let parsedNumber = formater.numberFromString(display.text!) {
                 return parsedNumber.doubleValue
             } else {
                 return nil
             }
         }
         set {
+            descriptionDisplay.text = brain.description
+            
             if let newDouble = newValue {
-                display.text = "\(newDouble)"
+                let (integerPart, fractionalPart) = modf(newDouble)
+                
+                display.text =
+                    fractionalPart == 0 ? "\(Int(integerPart))" : "\(newDouble)"
+                descriptionDisplay.text = descriptionDisplay.text! + "="
             } else {
-                display.text = ""
+                if let errors = brain.evaluateAndReportErrors() {
+                    display.text = errors
+                } else {
+                    display.text = defaultDisplayText
+                }
             }
+            
             userIsInTheMiddleOfTypingANumber = false
         }
     }
     
     @IBAction func clear() {
-        displayValue = 0
-        historyDisplay.text = "History:"
-        operandStack = Array<Double>()
+        brain.clear()
+        brain.variableValues["M"] = nil
+        displayValue = nil
+    }
+    
+    @IBAction func setMemoryVariable() {
+        if let currentValue = displayValue {
+            brain.variableValues["M"] = currentValue
+        }
+        
+        displayValue = brain.evaluate()
+    }
+    
+    @IBAction func getMemoryVariable() {
+        enter()
+        brain.pushOperand("M")
+        displayValue = brain.evaluate()
+    }
+    
+    private func appendDigit(digit: String) {
+        if userIsInTheMiddleOfTypingANumber {
+            display.text = display.text! + digit
+        } else {
+            // replace default 0 with first inputed digit
+            display.text = digit
+            userIsInTheMiddleOfTypingANumber = true
+        }
+    }
+    
+    private func appendDecimalPoint() {
+        if userIsInTheMiddleOfTypingANumber {
+            // .. only allow one decimal point to be entered
+            if display.text!.rangeOfString(".") == nil {
+                display.text = display.text! + "."
+            }
+        }
+            // prepend with 0 if decimal point is the first inputed character
+        else {
+            display.text = "0."
+            userIsInTheMiddleOfTypingANumber = true
+        }
+    }
+    
+    private func toggleNegativeSign() {
+        if display.text!.rangeOfString("-") == nil {
+            display.text = "-" + display.text!
+        } else {
+            display.text = String(dropFirst(display.text!.characters))
+        }
     }
 }
 
